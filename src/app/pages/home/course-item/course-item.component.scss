@@ -1,0 +1,30 @@
+@import "../../../styles/variables/colors.scss";
+
+.course-item {
+    width: 300px;
+    margin: 5px;
+
+    .overflow {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
+    main, footer {
+        > div{
+            width: 100%;
+        }
+    }
+
+    .top-border-none {
+        border-top:transparent;
+    }
+
+    footer {
+        padding: 0;
+
+        button:hover {
+            text-decoration: none;
+        }
+    }
+}

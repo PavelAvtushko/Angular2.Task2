@@ -1,0 +1,58 @@
+<div class="container border">
+	<form class="form-horizontal">
+		<div></div>
+		<div class="form-group row">
+			<label for="inputName" class="col-sm-2 control-label">Name</label>
+			<div class="col-sm-6">
+				<input
+					type="text"
+					class="form-control"
+					placeholder="Title"
+					name="name"
+					[(ngModel)]="newCourse.name">
+			</div>
+		</div>
+		<div class="form-group row">
+			<label for="inputEmail3" class="col-sm-2 control-label">Description</label>
+			<div class="col-sm-6">
+				<input type="text"
+					name="description"
+					class="form-control"
+					id="inputDescription"
+					[(ngModel)]="newCourse.description"
+					placeholder="Description">
+			</div>
+		</div>
+		<div class="form-group row">
+			<label for="inputDuration" class="col-sm-2 control-label">Duration</label>
+			<div class="col-sm-6">
+				<input type="text"
+				[(ngModel)]="newCourse.duration"
+				name = "duration"
+				class="form-control"
+				id="inputDuration"
+				placeholder="Duration">
+			</div>
+		</div>
+		<div class="form-group row">
+			<label for="inputDate" class="col-sm-2 control-label">Creation date</label>
+			<div class="col-sm-6">
+				<input
+					type="text"
+					class="form-control"
+					id="inputDate"
+					name = "date"
+					disabled
+					[ngModel]="newCourse.date | date : 'MMM, dd  yyyy: HH:mm' "
+					placeholder="Date">
+			</div>
+		</div>
+		<div class="form-group row">
+			<div class="col-sm-8 clearfix text-right">
+				<input type="button" class="pull-right btn btn-success" value="Submit" (click)='addCourse()' [disabled] = '!newCourse.name'>
+				<input type="button" class="pull-right btn btn-warning" value="Cancel" (click)='hideForm()'>
+			</div>
+		</div>
+	</form>
+</div>
+

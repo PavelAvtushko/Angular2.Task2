@@ -1,0 +1,24 @@
+@import "../../../styles/variables/colors.scss";
+
+.main-footer {
+	background-color: $c-muted;
+	color: $white;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 50px;
+}
+
+// .cental-container {
+// 	width: 100%;
+// 	height: 100%;
+// 	position: relative;
+// } 
+
+// .central-item {
+// 	position: absolute;
+// 	top: 50%;
+// 	left: 50%;
+// 	transform: translate(-50% , -50%);
+// }

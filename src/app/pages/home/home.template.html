@@ -1,0 +1,25 @@
+<div class="home-page">
+	<!--<search-form
+		class="row"
+		(showForm) = "showForm($event)"
+		(findCourses)="findCourses($event)">
+	</search-form>
+	<edit-form 
+		class="row"
+		*ngIf="isShowingForm"
+		[courseData] = "courseData"
+		(addNewCourse)="addNewCourse($event)"
+		(showForm) = "showForm($event)">
+	</edit-form>
+	<div class="row line"></div>
+	<div class="row">
+		<course-item *ngFor="let course of (courseList | mySearchCourses : searchValue)"
+			[course]="course"
+			[filterCourses] = "filterCourses"
+			(deleteCourse)="deleteCourse($event)"
+			(editCourse)="editCourse($event)">
+		</course-item>
+	</div>	-->
+	<pie-chart></pie-chart>
+	<div *ngIf="isLoading">Is loading...</div>
+</div>

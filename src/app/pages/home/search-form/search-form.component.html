@@ -1,0 +1,14 @@
+<div class="container">
+	<form class="form-group">
+		<label for="exampleInputEmail1" class="row form-title">Course action panel</label>
+		<div class="form-inline row">
+			<input type="text"
+				class="form-control col-md-4"
+				id="exampleInputEmail2"
+				placeholder="Course name or Date"
+				[(ngModel)]="keyPhrase" name = "search">
+			<input type="button" class="btn btn-primary btn-offset" value="Find" (click)=sendRequest(keyPhrase)>
+			<input type="button" class="btn btn-primary btn-offset" value="Add Course" (click)=onShowForm()>
+		</div>
+	</form>
+</div>
