@@ -2,6 +2,79 @@ import { Component, ViewEncapsulation, EventEmitter, Input, Output } from '@angu
 import * as d3 from 'd3';
 import { CourseItem } from '../../../core/entities';
 
+interface CitiesData {
+	population: string;
+	city: string;
+}
+
+class ChartService {
+
+	private color;
+	private pie;
+	private label;
+	private path;
+	public svg;
+	public height: number;
+	public width: number;
+
+	constructor(private data: Array<CitiesData>, containerSelector: string) {
+
+		this.svg = d3.select(containerSelector + ' > svg');
+		this.setDimentions(this.svg);
+
+		const radius = Math.min(this.width, this.height) / 2,
+			offset = 10,
+			colors = this.colorGenerator(this.data.length);
+
+		this.color = d3.scaleOrdinal(colors);
+
+		this.pie = d3.pie().sort(null);
+
+		this.path = d3.arc()
+			.outerRadius(radius - offset)
+			.innerRadius(0);
+
+		this.label = d3.arc()
+			.outerRadius(radius - offset)
+			.innerRadius(radius - offset);
+	}
+
+	private setDimentions(svg) {
+		this.height = +svg.attr('height');
+		this.width = +svg.attr('width');
+		this.svg.append('g')
+			.attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
+	}
+
+	private colorGenerator(amount: number) {
+		let step = Math.ceil(360 / amount);
+		let result = [];
+		for (let i = 0; i < amount; i++) {
+			result.push(`hsl(${i * step},50%,50%)`);
+		};
+		return result;
+	}
+
+	public init() {
+		const arc = this.svg.selectAll('.arc')
+			.data(this.pie.value(d => d.population)(this.data))
+			.enter().append('g')
+			.attr('class', 'arc');
+
+		arc.append('path')
+			.attr('d', this.path)
+			.attr('fill', d => this.color(d.data.population));
+
+		arc.append('text')
+			.attr('transform', d => `translate(${this.label.centroid(d)})`)
+			.attr('dy', '0.35em')
+			.text(d => d.data.city.split(' ')[1] + d.data.population)
+			.attr('fill', 'navyblue');
+	}
+}
+
+
+
 @Component({
 	selector: 'pie-chart',
 	templateUrl: 'pie-chart.component.html',
@@ -18,55 +91,66 @@ export class PieChartComponent {
 	// @Output() public deleteCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
 	// @Output() public editCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
 
+	private width = 960;
+	private height = 500;
+	private amount = 8;
+	private radius = Math.min(this.width, this.height) / 2;
+
 	constructor() {
 
 	}
 
-	public ngOnInit(){
-		var width = 960,
-				height = 500,
-				radius = Math.min(width, height) / 2;
+	private colorGenerator(amount: number) {
+		let step = Math.ceil(360 / amount);
+		let result = [];
+		for (let i = 0; i < amount; i++) {
+			result.push(`hsl(${i * step},50%,50%)`);
+		};
+		return d3.scaleOrdinal(result);
+	}
 
-			var color = d3.scaleOrdinal(["red", "blue", "grey", "yellow", "pink", "green", "violet", "lightgrey"]);
+	public ngOnInit() {
+		// let width = 960,
+		// 	height = 500,
+		// 	radius = Math.min(width, height) / 2;
 
-			var pie = d3.pie()
+		let color = this.colorGenerator(this.amount);
+
+		let pie = d3.pie()
 			.sort(null)
-			.value(function(d) { return d.population; });
+			.value(d => d.population);
 
-			var path = d3.arc()
-				.outerRadius(radius - 10)
-				.innerRadius(0);
+		let path = d3.arc()
+			.outerRadius(this.radius - 10)
+			.innerRadius(0);
 
-			var label = d3.arc()
-				.outerRadius(radius - 40)
-				.innerRadius(radius - 40);
+		let label = d3.arc()
+			.outerRadius(this.radius - 40)
+			.innerRadius(this.radius - 40);
 
-			console.log(d3.select(".pie-chart"));
+		let svg = d3.select('.pie-chart').append('svg')
+			.attr('width', this.width)
+			.attr('height', this.height)
+			.append('g')
+			.attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
 
-			var svg = d3.select(".pie-chart").append("svg")
-				.attr("width", width)
-				.attr("height", height)
-				.append("g")
-				.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+		d3.json('chartData', function (error, data) {
+			if (error) throw error;
+			let arc = svg.selectAll('.arc')
+				.data(pie(data))
+				.enter().append('g')
+				.attr('class', 'arc');
 
-			d3.json("chartData", function(error, data) {
-				if (error) throw error;
-				console.log(data);
-				var arc = svg.selectAll(".arc")
-					.data(pie(data))
-					.enter().append("g")
-					.attr("class", "arc");
+			arc.append('path')
+				.attr('d', path)
+				.attr('fill', d => color(d.data.population));
 
-				arc.append("path")
-					.attr("d", path)
-					.attr("fill", function(d) { return color(d.data.population); });
-
-				arc.append("text")
-					.attr("transform", function(d) { return "translate(" + label.centroid(d) + ")"; })
-					.attr("dy", "0.35em")
-					.text(function(d) { return d.data.city.split(' ')[1] + d.data.population; })
-					.attr("fill","navyblue");
-				});
+			arc.append('text')
+				.attr('transform', d => `translate(${label.centroid(d)})`)
+				.attr('dy', '0.35em')
+				.text(d => d.data.city.split(' ')[1] + d.data.population)
+				.attr('fill', 'navyblue');
+		});
 	}
 	// public onEditCourse(course: CourseItem): void {
 	// 	this.editCourse.emit(course);
@@ -82,4 +166,4 @@ export class PieChartComponent {
 	// 	return this.filterCourses(course);
 	// }
 }
-	
+

@@ -1137,48 +1137,61 @@ var routes = __WEBPACK_IMPORTED_MODULE_0__angular_router__["RouterModule"].forCh
 
 
 var PieChartComponent = (function () {
-    // @Input() public course: CourseItem;
-    // @Input() public filterCourses;
-    // @Input() public deleteCourse;
-    // @Input() public showForm;
-    // @Output() public deleteCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
-    // @Output() public editCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
     function PieChartComponent() {
+        // @Input() public course: CourseItem;
+        // @Input() public filterCourses;
+        // @Input() public deleteCourse;
+        // @Input() public showForm;
+        // @Output() public deleteCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
+        // @Output() public editCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
+        this.width = 960;
+        this.height = 500;
+        this.amount = 8;
+        this.radius = Math.min(this.width, this.height) / 2;
     }
+    PieChartComponent.prototype.colorGenerator = function (amount) {
+        var step = Math.ceil(360 / amount);
+        var result = [];
+        for (var i = 0; i < amount; i++) {
+            result.push("hsl(" + i * step + ",50%,50%)");
+        }
+        ;
+        return __WEBPACK_IMPORTED_MODULE_2_d3__["scaleOrdinal"](result);
+    };
     PieChartComponent.prototype.ngOnInit = function () {
-        var width = 960, height = 500, radius = Math.min(width, height) / 2;
-        var color = __WEBPACK_IMPORTED_MODULE_2_d3__["scaleOrdinal"](["red", "blue", "grey", "yellow", "pink", "green", "violet", "lightgrey"]);
+        // let width = 960,
+        // 	height = 500,
+        // 	radius = Math.min(width, height) / 2;
+        var color = this.colorGenerator(this.amount);
         var pie = __WEBPACK_IMPORTED_MODULE_2_d3__["pie"]()
             .sort(null)
             .value(function (d) { return d.population; });
         var path = __WEBPACK_IMPORTED_MODULE_2_d3__["arc"]()
-            .outerRadius(radius - 10)
+            .outerRadius(this.radius - 10)
             .innerRadius(0);
         var label = __WEBPACK_IMPORTED_MODULE_2_d3__["arc"]()
-            .outerRadius(radius - 40)
-            .innerRadius(radius - 40);
-        console.log(__WEBPACK_IMPORTED_MODULE_2_d3__["select"](".pie-chart"));
-        var svg = __WEBPACK_IMPORTED_MODULE_2_d3__["select"](".pie-chart").append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g")
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-        __WEBPACK_IMPORTED_MODULE_2_d3__["json"]("chartData", function (error, data) {
+            .outerRadius(this.radius - 40)
+            .innerRadius(this.radius - 40);
+        var svg = __WEBPACK_IMPORTED_MODULE_2_d3__["select"]('.pie-chart').append('svg')
+            .attr('width', this.width)
+            .attr('height', this.height)
+            .append('g')
+            .attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
+        __WEBPACK_IMPORTED_MODULE_2_d3__["json"]('chartData', function (error, data) {
             if (error)
                 throw error;
-            console.log(data);
-            var arc = svg.selectAll(".arc")
+            var arc = svg.selectAll('.arc')
                 .data(pie(data))
-                .enter().append("g")
-                .attr("class", "arc");
-            arc.append("path")
-                .attr("d", path)
-                .attr("fill", function (d) { return color(d.data.population); });
-            arc.append("text")
-                .attr("transform", function (d) { return "translate(" + label.centroid(d) + ")"; })
-                .attr("dy", "0.35em")
+                .enter().append('g')
+                .attr('class', 'arc');
+            arc.append('path')
+                .attr('d', path)
+                .attr('fill', function (d) { return color(d.data.population); });
+            arc.append('text')
+                .attr('transform', function (d) { return "translate(" + label.centroid(d) + ")"; })
+                .attr('dy', '0.35em')
                 .text(function (d) { return d.data.city.split(' ')[1] + d.data.population; })
-                .attr("fill", "navyblue");
+                .attr('fill', 'navyblue');
         });
     };
     return PieChartComponent;
@@ -1676,7 +1689,7 @@ module.exports = "<div class=\"home-page\">\r\n\t<!--<search-form\r\n\t\tclass=\
 /* 102 */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"pie-chart\">\r\n    <!--<svg width = '960' height = '500' fill = \"blue\" ></svg>-->\r\n</div>\r\n"
+module.exports = "<div class=\"pie-chart\">\r\n    <!--<svg width = '960' height = '500'></svg>-->\r\n</div>\r\n"
 
 /***/ }),
 /* 103 */
