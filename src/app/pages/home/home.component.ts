@@ -1,12 +1,12 @@
 import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
-// import { Subscription } from 'rxjs';
-// import { Pipe, PipeTransform } from '@angular/core';
-
+import { Subscription } from 'rxjs';
+import { Pipe, PipeTransform } from '@angular/core';
 import { CourseService } from '../../core/services';
+import { ChartService } from '../../core/services';
 import { CourseItem } from '../../core/entities';
 
-// import { TodoService } from '../../core/services';
-// import { TodoItem } from '../../core/entities';
+import { TodoService } from '../../core/services';
+import { TodoItem } from '../../core/entities';
 
 @Component({
 	selector: 'home',
@@ -16,32 +16,40 @@ import { CourseItem } from '../../core/entities';
 	template: require('./home.template.html')
 })
 
-export class HomeComponent implements OnInit {
-	// private todoServiceSubscription: Subscription;
-	// private todoList: TodoItem[];
-	// private isLoading: boolean = false;
-
+export class HomeComponent implements OnInit, OnDestroy {
 	public courseData: CourseItem;
+	private todoServiceSubscription: Subscription;
+	private todoList: TodoItem[];
+	private isLoading: boolean = false;
 	private courseList: CourseItem[];
 	private isShowingForm: boolean = false;
 	private searchValue: string;
+	private chartData: any;
+	private chartName: string;
 
-	constructor(private courseService: CourseService) {
+	constructor(
+		private courseService: CourseService,
+		private chartService: ChartService,
+		private todoService: TodoService) {
 	}
 
 	public ngOnInit() {
-		// this.isLoading = false;
-		// this.todoServiceSubscription = this.todoService.getTodoItems().subscribe((res: TodoItem[]) => {
-		// 	this.todoList = res;
-		// 	this.isLoading = false;
-		// });
+		this.chartName = 'The biggest cities in the world';
+		this.chartService.getChartData((res) => {
+			this.chartData = res.json();
+		});
 
+		this.isLoading = false;
+		this.todoServiceSubscription = this.todoService.getTodoItems().subscribe((res: TodoItem[]) => {
+			this.todoList = res;
+			this.isLoading = false;
+		});
 		this.courseList = this.courseService.getCourseItems();
 	}
 
-	// public ngOnDestroy() {
-	// 	this.todoServiceSubscription.unsubscribe();
-	// }
+	public ngOnDestroy() {
+		this.todoServiceSubscription.unsubscribe();
+	}
 
 	public deleteCourse = (course: CourseItem): void => {
 		this.courseService.deleteCourse(this.courseList, course);
@@ -85,5 +93,3 @@ export class HomeComponent implements OnInit {
 		this.isShowingForm = flag;
 	}
 }
-
-// deleteCourse addNewCourse updateCourse

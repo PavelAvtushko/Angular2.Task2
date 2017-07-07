@@ -35,11 +35,13 @@ import { PageTwoModule } from  './pages/page-two';
 
 import { TodoService } from './core/services';
 import { CourseService } from './core/services';
+import { ChartService } from './core/services';
 
 // Application wide providers
 const APP_PROVIDERS = [
 	TodoService,
-	CourseService
+	CourseService,
+	ChartService
 ];
 
 /**

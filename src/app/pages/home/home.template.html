@@ -19,7 +19,8 @@
 			(deleteCourse)="deleteCourse($event)"
 			(editCourse)="editCourse($event)">
 		</course-item>
-	</div>	-->
-	<pie-chart></pie-chart>
+	</div>-->
+	<div class="row line"></div>
+	<pie-chart [chartData]="chartData" [chartName]="chartName"></pie-chart>
 	<div *ngIf="isLoading">Is loading...</div>
 </div>

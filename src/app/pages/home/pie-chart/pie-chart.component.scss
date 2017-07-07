@@ -1,11 +1,17 @@
 @import "../../../styles/variables/colors.scss";
+#pie-chart {
+	text-align: center;
+}
 
-	.arc text {
-		font: 10px sans-serif;
-		text-anchor: middle;
-	}
+#pie-chart span {
+	margin: auto;
+}
 
-	.arc path {
-		stroke: #fff;
-	}
-    
+.arc text {
+	font: 10px sans-serif;
+	text-anchor: middle;
+}
+
+.arc path {
+	stroke: #fff;
+}
