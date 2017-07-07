@@ -1136,63 +1136,125 @@ var routes = __WEBPACK_IMPORTED_MODULE_0__angular_router__["RouterModule"].forCh
 
 
 
-var PieChartComponent = (function () {
-    function PieChartComponent() {
-        // @Input() public course: CourseItem;
-        // @Input() public filterCourses;
-        // @Input() public deleteCourse;
-        // @Input() public showForm;
-        // @Output() public deleteCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
-        // @Output() public editCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
-        this.width = 960;
-        this.height = 500;
-        this.amount = 8;
-        this.radius = Math.min(this.width, this.height) / 2;
+var ChartService = (function () {
+    function ChartService(data, containerSelector) {
+        this.data = data;
+        this.svg = __WEBPACK_IMPORTED_MODULE_2_d3__["select"](containerSelector + " > svg");
+        this.width = +this.svg.attr("width");
+        this.height = +this.svg.attr("height");
+        this.svg = this.svg.append("g").attr("transform", "translate(" + this.width / 2 + "," + this.height / 2 + ")");
+        var radius = Math.min(this.width, this.height) / 2, offset = 10, colors = this.colorGenerator(this.data.length);
+        this.color = __WEBPACK_IMPORTED_MODULE_2_d3__["scaleOrdinal"](colors);
+        this.pie = __WEBPACK_IMPORTED_MODULE_2_d3__["pie"]().sort(function (a, b) { return b.population - a.population; });
+        this.path = __WEBPACK_IMPORTED_MODULE_2_d3__["arc"]()
+            .outerRadius(radius - offset)
+            .innerRadius(0);
+        this.label = __WEBPACK_IMPORTED_MODULE_2_d3__["arc"]()
+            .outerRadius(radius - offset)
+            .innerRadius(radius - offset);
     }
-    PieChartComponent.prototype.colorGenerator = function (amount) {
+    // private setDimentions(svg) {
+    // 	this.height = +svg.attr('height');
+    // 	this.width = +svg.attr('width');
+    // }
+    ChartService.prototype.colorGenerator = function (amount) {
         var step = Math.ceil(360 / amount);
         var result = [];
         for (var i = 0; i < amount; i++) {
             result.push("hsl(" + i * step + ",50%,50%)");
         }
         ;
-        return __WEBPACK_IMPORTED_MODULE_2_d3__["scaleOrdinal"](result);
+        return result;
     };
+    ChartService.prototype.init = function () {
+        var _this = this;
+        var arc = this.svg.selectAll('.arc')
+            .data(this.pie.value(function (d) { return d.population; })(this.data))
+            .enter().append('g')
+            .attr('class', 'arc');
+        arc.append('path')
+            .attr('d', this.path)
+            .attr('fill', function (d) { return _this.color(d.data.population); });
+        arc.append('text')
+            .attr('transform', function (d) { return "translate(" + _this.label.centroid(d) + ")"; })
+            .attr('dy', '0.35em')
+            .text(function (d) { return d.data.city + d.data.population; })
+            .attr('fill', 'navyblue');
+    };
+    return ChartService;
+}());
+var PieChartComponent = (function () {
+    // @Input() public course: CourseItem;
+    // @Input() public filterCourses;
+    // @Input() public deleteCourse;
+    // @Input() public showForm;
+    // @Output() public deleteCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
+    // @Output() public editCourse: EventEmitter<CourseItem> = new EventEmitter<CourseItem>();
+    // private width = 960;
+    // private height = 500;
+    // private amount = 8;
+    // private radius = Math.min(this.width, this.height) / 2;
+    function PieChartComponent() {
+    }
+    // private colorGenerator(amount: number) {
+    // 	let step = Math.ceil(360 / amount);
+    // 	let result = [];
+    // 	for (let i = 0; i < amount; i++) {
+    // 		result.push(`hsl(${i * step},50%,50%)`);
+    // 	};
+    // 	return d3.scaleOrdinal(result);
+    // }
     PieChartComponent.prototype.ngOnInit = function () {
-        // let width = 960,
-        // 	height = 500,
-        // 	radius = Math.min(width, height) / 2;
-        var color = this.colorGenerator(this.amount);
-        var pie = __WEBPACK_IMPORTED_MODULE_2_d3__["pie"]()
-            .sort(null)
-            .value(function (d) { return d.population; });
-        var path = __WEBPACK_IMPORTED_MODULE_2_d3__["arc"]()
-            .outerRadius(this.radius - 10)
-            .innerRadius(0);
-        var label = __WEBPACK_IMPORTED_MODULE_2_d3__["arc"]()
-            .outerRadius(this.radius - 40)
-            .innerRadius(this.radius - 40);
-        var svg = __WEBPACK_IMPORTED_MODULE_2_d3__["select"]('.pie-chart').append('svg')
-            .attr('width', this.width)
-            .attr('height', this.height)
-            .append('g')
-            .attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
         __WEBPACK_IMPORTED_MODULE_2_d3__["json"]('chartData', function (error, data) {
             if (error)
                 throw error;
-            var arc = svg.selectAll('.arc')
-                .data(pie(data))
-                .enter().append('g')
-                .attr('class', 'arc');
-            arc.append('path')
-                .attr('d', path)
-                .attr('fill', function (d) { return color(d.data.population); });
-            arc.append('text')
-                .attr('transform', function (d) { return "translate(" + label.centroid(d) + ")"; })
-                .attr('dy', '0.35em')
-                .text(function (d) { return d.data.city.split(' ')[1] + d.data.population; })
-                .attr('fill', 'navyblue');
+            var el = new ChartService(data, '#pie-chart');
+            el.init();
         });
+        // let width = 960,
+        // 	height = 500,
+        // 	radius = Math.min(width, height) / 2;
+        // 	let color = this.colorGenerator(this.amount);
+        // 	let pie = d3.pie()
+        // 		.sort(null)
+        // 		.value(d => d.population);
+        // 	let path = d3.arc()
+        // 		.outerRadius(this.radius - 10)
+        // 		.innerRadius(0);
+        // 	let label = d3.arc()
+        // 		.outerRadius(this.radius - 40)
+        // 		.innerRadius(this.radius - 40);
+        // 	let svg = d3.select('.pie-chart').append('svg')
+        // 		.attr('width', this.width)
+        // 		.attr('height', this.height)
+        // 		.append('g')
+        // 		.attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
+        // 	d3.json('chartData', function (error, data) {
+        // 		if (error) throw error;
+        // 		let arc = svg.selectAll('.arc')
+        // 			.data(pie(data))
+        // 			.enter().append('g')
+        // 			.attr('class', 'arc');
+        // 		arc.append('path')
+        // 			.attr('d', path)
+        // 			.attr('fill', d => color(d.data.population));
+        // 		arc.append('text')
+        // 			.attr('transform', d => `translate(${label.centroid(d)})`)
+        // 			.attr('dy', '0.35em')
+        // 			.text(d => d.data.city.split(' ')[1] + d.data.population)
+        // 			.attr('fill', 'navyblue');
+        // 	});
+        // }
+        // public onEditCourse(course: CourseItem): void {
+        // 	this.editCourse.emit(course);
+        // 	// this.showForm(course);
+        // 	// console.log('edit', course.id);
+        // }
+        // public onDeleteCourse(course: CourseItem): void {
+        // 	this.deleteCourse.emit(course);
+        // }
+        // public display(course: CourseItem): boolean {
+        // 	return this.filterCourses(course);
     };
     return PieChartComponent;
 }());
@@ -1689,7 +1751,7 @@ module.exports = "<div class=\"home-page\">\r\n\t<!--<search-form\r\n\t\tclass=\
 /* 102 */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"pie-chart\">\r\n    <!--<svg width = '960' height = '500'></svg>-->\r\n</div>\r\n"
+module.exports = "<div id=\"pie-chart\">\r\n    <svg width = '960' height = '500'></svg>\r\n</div>\r\n"
 
 /***/ }),
 /* 103 */
