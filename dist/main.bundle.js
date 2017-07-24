@@ -80,8 +80,9 @@ var HomeComponent = (function () {
         this.todoService = todoService;
         this.isLoading = false;
         this.isShowingForm = false;
+        this.userName = 'name1';
         this.deleteCourse = function (course) {
-            _this.courseService.deleteCourse(_this.courseList, course);
+            _this.courseList = _this.courseService.removeItem(_this.userName, course.id);
             _this.showForm(false);
         };
         this.editCourse = function (course) {
@@ -89,25 +90,10 @@ var HomeComponent = (function () {
             _this.showForm(true);
         };
         this.addNewCourse = function (data) {
-            if (data.id) {
-                _this.courseService.updateCourse(_this.courseList, data);
-            }
-            else {
-                _this.courseService.addNewCourse(_this.courseList, data);
-            }
+            _this.courseList = (data.id)
+                ? _this.courseService.updateItem(_this.userName, data)
+                : _this.courseService.createCourse(_this.userName, data);
             _this.showForm(false);
-        };
-        this.filterCourses = function (course) {
-            if (!_this.searchValue) {
-                return true;
-            }
-            else {
-                var subStr = _this.searchValue.toLowerCase();
-                if (course.name.toLowerCase().indexOf(subStr) !== -1) {
-                    return true;
-                }
-                return false;
-            }
         };
         this.showForm = function (flag) {
             if (!flag) {
@@ -127,13 +113,13 @@ var HomeComponent = (function () {
             _this.todoList = res;
             _this.isLoading = false;
         });
-        this.courseList = this.courseService.getCourseItems();
+        this.courseList = this.courseService.getList(this.userName);
     };
     HomeComponent.prototype.ngOnDestroy = function () {
         this.todoServiceSubscription.unsubscribe();
     };
     HomeComponent.prototype.findCourses = function (request) {
-        this.searchValue = request;
+        this.courseList = this.courseService.findItems(this.userName, request);
     };
     return HomeComponent;
 }());
@@ -877,49 +863,80 @@ ChartService = __WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
 // import { Observable } from 'rxjs';
 // import 'rxjs/add/operator/map';
 
+var DBdata = {
+    name1: [new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
+            name: 'Video course 1',
+            description: 'Heaaalth and social security',
+            duration: '1h 23 min'
+        }),
+        new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
+            name: 'Video course 2',
+            description: 'Tax collection and management',
+            duration: '2h 23 min'
+        }),
+        new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
+            name: 'Video course 3',
+            description: 'Heaaalth and social security',
+            duration: '1h 23 min'
+        }),
+        new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
+            name: 'Video course 4',
+            description: 'Tax collection and management',
+            duration: '1h 23 min'
+        }),
+        new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
+            name: 'Video course 5',
+            description: 'Health and social security',
+            duration: '1h 28 min'
+        })
+    ],
+    name2: []
+};
 var CourseService = (function () {
     function CourseService() {
     }
-    CourseService.prototype.getCourseItems = function () {
-        return [
-            new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
-                name: 'Video course 1',
-                description: 'Heaaalth and social security',
-                duration: '1h 23 min'
-            }),
-            new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
-                name: 'Video course 2',
-                description: 'Tax collection and management',
-                duration: '2h 23 min'
-            }),
-            new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
-                name: 'Video course 3',
-                description: 'Heaaalth and social security',
-                duration: '1h 23 min'
-            }),
-            new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
-                name: 'Video course 4',
-                description: 'Tax collection and management',
-                duration: '1h 23 min'
-            }),
-            new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */]({
-                name: 'Video course 5',
-                description: 'Health and social security',
-                duration: '1h 28 min'
-            })
-        ];
+    CourseService.prototype.getList = function (userName) {
+        if (DBdata[userName]) {
+            return DBdata[userName];
+        }
+        throw new Error('current user is not exist');
     };
-    CourseService.prototype.deleteCourse = function (courses, course) {
-        var index = courses.indexOf(course);
-        courses.splice(index, 1);
+    CourseService.prototype.addUser = function (userName) {
+        if (!DBdata[userName]) {
+            DBdata[userName] = [];
+            return true;
+        }
+        return false;
     };
-    CourseService.prototype.addNewCourse = function (courses, data) {
-        var newCourse = new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */](data);
-        courses.push(newCourse);
+    CourseService.prototype.removeItem = function (userName, courseID) {
+        if (DBdata[userName]) {
+            DBdata[userName] = DBdata[userName]
+                .filter(function (course) { return course.id !== courseID; });
+            return DBdata[userName];
+        }
     };
-    CourseService.prototype.updateCourse = function (courses, data) {
-        var currentCourse = courses.find(function (item) { return item.id === data.id; });
-        currentCourse.modifyCourse(data);
+    CourseService.prototype.createCourse = function (userName, courseData) {
+        if (DBdata[userName]) {
+            var newCourse = new __WEBPACK_IMPORTED_MODULE_2__entities__["a" /* CourseItem */](courseData);
+            DBdata[userName].push(newCourse);
+            return DBdata[userName];
+        }
+    };
+    CourseService.prototype.getItemByID = function (userName, courseID) {
+        if (DBdata[userName]) {
+            return DBdata[userName].find(function (course) { return course.id === courseID; });
+        }
+    };
+    CourseService.prototype.updateItem = function (userName, data) {
+        if (DBdata[userName]) {
+            var currentCourse = DBdata[userName].find(function (item) { return item.id === data.id; });
+            currentCourse.modifyCourse(data);
+            return DBdata[userName];
+        }
+    };
+    CourseService.prototype.findItems = function (userName, searchKey) {
+        searchKey = searchKey.toLowerCase();
+        return DBdata[userName].filter(function (item) { return item.name.toLowerCase().indexOf(searchKey) !== -1; });
     };
     return CourseService;
 }());
@@ -985,6 +1002,7 @@ TodoService = __WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
 
 var CourseItemComponent = (function () {
     function CourseItemComponent() {
+        // @Input() public filterCourses;
         // @Input() public deleteCourse;
         // @Input() public showForm;
         this.deleteCourse = new __WEBPACK_IMPORTED_MODULE_1__angular_core__["EventEmitter"]();
@@ -998,19 +1016,12 @@ var CourseItemComponent = (function () {
     CourseItemComponent.prototype.onDeleteCourse = function (course) {
         this.deleteCourse.emit(course);
     };
-    CourseItemComponent.prototype.display = function (course) {
-        return this.filterCourses(course);
-    };
     return CourseItemComponent;
 }());
 __WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["Input"])(),
     __WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __metadata */]("design:type", __WEBPACK_IMPORTED_MODULE_2__core_entities__["a" /* CourseItem */])
 ], CourseItemComponent.prototype, "course", void 0);
-__WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
-    __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["Input"])(),
-    __WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __metadata */]("design:type", Object)
-], CourseItemComponent.prototype, "filterCourses", void 0);
 __WEBPACK_IMPORTED_MODULE_0_tslib__["a" /* __decorate */]([
     __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["Output"])(),
     __WEBPACK_IMPORTED_MODULE_0_tslib__["b" /* __metadata */]("design:type", __WEBPACK_IMPORTED_MODULE_1__angular_core__["EventEmitter"])
@@ -1736,7 +1747,7 @@ module.exports = "<div>\r\n\t<nav class=\"main-navbar\">\r\n\t\t<div class=\"con
 /* 101 */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"list-group course-item\" *ngIf=\"display(course)\">\r\n\t<header class=\"list-group-item\">\r\n\t\t<h4 class=\"overflow\">{{course.name}}</h4>\r\n\t</header>\r\n\t<main class=\"list-group-item top-border-none\">\r\n\t\t<div>\r\n\t\t\t<h5 class=\"overflow\">{{course.description}}</h5>\r\n\t\t\t<h5 class=\"overflow\">Cases</h5>\r\n\t\t\t<div class=\"text-right\">{{course.date | date : 'MMM, dd yyyy: HH:mm'}}</div>\r\n\t\t\t<div class=\"text-right\">{{course.duration}}</div>\r\n\t\t</div>\r\n\t</main>\r\n\t<footer class=\"list-group-item\">\r\n\t\t<div class=\"text-right\">\r\n\t\t\t<button type=\"button\" class=\"btn-link btn-xs\" (click)=onEditCourse(course)>Edit</button>\r\n\t\t\t<button type=\"button\" class=\"btn-link btn-xs\" (click)=onDeleteCourse(course)>Delete</button>\r\n\t\t</div>\r\n\t</footer>\r\n</div>\r\n"
+module.exports = "<div class=\"list-group course-item\">\r\n\t<header class=\"list-group-item\">\r\n\t\t<h4 class=\"overflow\">{{course.name}}</h4>\r\n\t</header>\r\n\t<main class=\"list-group-item top-border-none\">\r\n\t\t<div>\r\n\t\t\t<h5 class=\"overflow\">{{course.description}}</h5>\r\n\t\t\t<h5 class=\"overflow\">Cases</h5>\r\n\t\t\t<div class=\"text-right\">{{course.date | date : 'MMM, dd yyyy: HH:mm'}}</div>\r\n\t\t\t<div class=\"text-right\">{{course.duration}}</div>\r\n\t\t</div>\r\n\t</main>\r\n\t<footer class=\"list-group-item\">\r\n\t\t<div class=\"text-right\">\r\n\t\t\t<button type=\"button\" class=\"btn-link btn-xs\" (click)=onEditCourse(course)>Edit</button>\r\n\t\t\t<button type=\"button\" class=\"btn-link btn-xs\" (click)=onDeleteCourse(course)>Delete</button>\r\n\t\t</div>\r\n\t</footer>\r\n</div>\r\n"
 
 /***/ }),
 /* 102 */
@@ -1748,7 +1759,7 @@ module.exports = "<div class=\"container border\">\r\n\t<form class=\"form-horiz
 /* 103 */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"home-page\">\r\n\t<!--<search-form\r\n\t\tclass=\"row\"\r\n\t\t(showForm) = \"showForm($event)\"\r\n\t\t(findCourses)=\"findCourses($event)\">\r\n\t</search-form>\r\n\t<edit-form \r\n\t\tclass=\"row\"\r\n\t\t*ngIf=\"isShowingForm\"\r\n\t\t[courseData] = \"courseData\"\r\n\t\t(addNewCourse)=\"addNewCourse($event)\"\r\n\t\t(showForm) = \"showForm($event)\">\r\n\t</edit-form>\r\n\t<div class=\"row line\"></div>\r\n\t<div class=\"row\">\r\n\t\t<course-item *ngFor=\"let course of (courseList | mySearchCourses : searchValue)\"\r\n\t\t\t[course]=\"course\"\r\n\t\t\t[filterCourses] = \"filterCourses\"\r\n\t\t\t(deleteCourse)=\"deleteCourse($event)\"\r\n\t\t\t(editCourse)=\"editCourse($event)\">\r\n\t\t</course-item>\r\n\t</div>-->\r\n\t<div class=\"row line\"></div>\r\n\t<pie-chart [chartData]=\"chartData\" [chartName]=\"chartName\"></pie-chart>\r\n\t<div *ngIf=\"isLoading\">Is loading...</div>\r\n</div>\r\n"
+module.exports = "<div class=\"home-page\">\r\n\t<!--<search-form\r\n\t\tclass=\"row\"\r\n\t\t(showForm) = \"showForm($event)\"\r\n\t\t(findCourses)=\"findCourses($event)\">\r\n\t</search-form>\r\n\t<edit-form \r\n\t\tclass=\"row\"\r\n\t\t*ngIf=\"isShowingForm\"\r\n\t\t[courseData] = \"courseData\"\r\n\t\t(addNewCourse)=\"addNewCourse($event)\"\r\n\t\t(showForm) = \"showForm($event)\">\r\n\t</edit-form>\r\n\t<div class=\"row line\"></div>\r\n\t<div class=\"row\">\r\n\t\t<course-item *ngFor=\"let course of courseList\"\r\n\t\t\t[course]=\"course\"\r\n\t\t\t(deleteCourse)=\"deleteCourse($event)\"\r\n\t\t\t(editCourse)=\"editCourse($event)\">\r\n\t\t</course-item>\r\n\t</div>-->\r\n\t<div class=\"row line\"></div>\r\n\t<pie-chart [chartData]=\"chartData\" [chartName]=\"chartName\"></pie-chart>\r\n\t<div *ngIf=\"isLoading\">Is loading...</div>\r\n</div>\r\n"
 
 /***/ }),
 /* 104 */

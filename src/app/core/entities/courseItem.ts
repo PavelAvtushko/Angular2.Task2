@@ -1,4 +1,4 @@
-import { CourseData } from './courseData';
+import CourseData from './courseData';
 
 export class CourseItem {
 	public name: string;

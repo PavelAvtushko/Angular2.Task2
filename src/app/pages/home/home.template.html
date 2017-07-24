@@ -13,9 +13,8 @@
 	</edit-form>
 	<div class="row line"></div>
 	<div class="row">
-		<course-item *ngFor="let course of (courseList | mySearchCourses : searchValue)"
+		<course-item *ngFor="let course of courseList"
 			[course]="course"
-			[filterCourses] = "filterCourses"
 			(deleteCourse)="deleteCourse($event)"
 			(editCourse)="editCourse($event)">
 		</course-item>

@@ -23,9 +23,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 	private isLoading: boolean = false;
 	private courseList: CourseItem[];
 	private isShowingForm: boolean = false;
-	private searchValue: string;
 	private chartData: any;
 	private chartName: string;
+	private userName: string = 'name1';
 
 	constructor(
 		private courseService: CourseService,
@@ -44,7 +44,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 			this.todoList = res;
 			this.isLoading = false;
 		});
-		this.courseList = this.courseService.getCourseItems();
+		this.courseList = this.courseService.getList(this.userName);
 	}
 
 	public ngOnDestroy() {
@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 	}
 
 	public deleteCourse = (course: CourseItem): void => {
-		this.courseService.deleteCourse(this.courseList, course);
+		this.courseList = this.courseService.removeItem(this.userName, course.id);
 		this.showForm(false);
 	}
 
@@ -62,28 +62,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 	}
 
 	public addNewCourse = (data): void => {
-		if (data.id) {
-			this.courseService.updateCourse(this.courseList, data);
-		} else {
-			this.courseService.addNewCourse(this.courseList, data);
-		}
+		this.courseList = (data.id)
+			? this.courseService.updateItem(this.userName, data)
+			: this.courseService.createCourse(this.userName, data);
 		this.showForm(false);
 	}
 
-	public filterCourses = (course: CourseItem) => {
-		if (!this.searchValue) {
-			return true;
-		} else {
-			const subStr = this.searchValue.toLowerCase();
-			if (course.name.toLowerCase().indexOf(subStr) !== -1) {
-				return true;
-			}
-			return false;
-		}
-	}
-
 	public findCourses(request: string) {
-		this.searchValue = request;
+		this.courseList = this.courseService.findItems(this.userName, request);
 	}
 
 	private showForm = (flag: boolean): void => {

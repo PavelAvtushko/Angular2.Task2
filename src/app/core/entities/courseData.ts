@@ -1,4 +1,4 @@
-export class CourseData {
+export default class CourseData {
 	public name: string;
 	public description: string;
 	public duration: string;
