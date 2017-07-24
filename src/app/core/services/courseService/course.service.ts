@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { CourseItem } from '../../entities';
 
 const DBdata = {
-	name1: [new CourseItem({
+	'name 1': [new CourseItem({
 		name: 'Video course 1',
 		description: 'Heaaalth and social security',
 		duration: '1h 23 min'
@@ -33,7 +33,7 @@ const DBdata = {
 		duration: '1h 28 min'
 	})
 	],
-	name2: []
+	'name 2': []
 };
 
 @Injectable()
@@ -42,10 +42,13 @@ export class CourseService {
 	constructor() { }
 
 	public getList(userName: string): CourseItem[] {
-		if (DBdata[userName]) {
-			return DBdata[userName];
+		if (userName && !DBdata[userName]) {
+			DBdata[userName] = [];
 		}
-		throw new Error('current user is not exist');
+		if (!userName) {
+			return;
+		}
+		return DBdata[userName];
 	}
 
 	public addUser(userName: string): boolean {
@@ -59,7 +62,7 @@ export class CourseService {
 	public removeItem(userName: string, courseID: string) {
 		if (DBdata[userName]) {
 			DBdata[userName] = DBdata[userName]
-				.filter(course => course.id !== courseID);
+				.filter((course) => course.id !== courseID);
 			return DBdata[userName];
 		}
 	}
@@ -74,7 +77,7 @@ export class CourseService {
 
 	public getItemByID(userName: string, courseID: string) {
 		if (DBdata[userName]) {
-			return DBdata[userName].find(course => course.id === courseID);
+			return DBdata[userName].find((course) => course.id === courseID);
 		}
 	}
 
@@ -88,7 +91,7 @@ export class CourseService {
 
 	public findItems(userName: string, searchKey: string) {
 		searchKey = searchKey.toLowerCase();
-		return DBdata[userName].filter(item => item.name.toLowerCase().indexOf(searchKey) !== -1);
+		return DBdata[userName].filter((course) => course.name.toLowerCase().indexOf(searchKey) !== -1);
 	}
 
 }

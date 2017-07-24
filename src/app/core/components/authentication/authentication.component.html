@@ -1,0 +1,23 @@
+<div class="container">
+	<form class="row" *ngIf="!user">
+		<div class="col-md-6">
+			<div class="form-group">
+				<label for="login">Login</label>
+				<input type="text" class="form-control" id="login" #log>
+			</div>
+			<div class="form-group">
+				<label for="Password">Password</label>
+				<input type="password" class="form-control" id="Password" #pass>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="align-text">
+				<button type="submit" class="btn btn-primary" (click)="logIn($event, log.value, pass.value)">Submit</button>
+			</div>
+		</div>
+	</form>
+	<div class="row login-info" *ngIf="user">
+		<a class="user-info" (click)="getUserInfo($event)">User: {{authenticationService.getUserInfo()}}</a>
+		<a class="user-info" (click)="logOut($event)">logout</a>
+	</div>
+</div>

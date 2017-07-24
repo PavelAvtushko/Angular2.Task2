@@ -23,11 +23,11 @@ import { AppState } from './app.service';
 	template: require('./app.template.html')
 })
 export class AppComponent implements OnInit {
+	public userName: string;
 
 	constructor() {
 	}
 
 	public ngOnInit() {
 	}
-
 }

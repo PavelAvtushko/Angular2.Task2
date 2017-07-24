@@ -1,8 +1,7 @@
-import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, Input } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Pipe, PipeTransform } from '@angular/core';
-import { CourseService } from '../../core/services';
-import { ChartService } from '../../core/services';
+import { CourseService, ChartService, AuthenticationService } from '../../core/services';
 import { CourseItem } from '../../core/entities';
 
 import { TodoService } from '../../core/services';
@@ -25,12 +24,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 	private isShowingForm: boolean = false;
 	private chartData: any;
 	private chartName: string;
-	private userName: string = 'name1';
+	private subscription: Subscription;
+	private userName: string;
 
 	constructor(
 		private courseService: CourseService,
 		private chartService: ChartService,
-		private todoService: TodoService) {
+		private todoService: TodoService,
+		private authenticationService: AuthenticationService) {
 	}
 
 	public ngOnInit() {
@@ -44,7 +45,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 			this.todoList = res;
 			this.isLoading = false;
 		});
-		this.courseList = this.courseService.getList(this.userName);
+
+		this.subscription = this.authenticationService.getMessage().subscribe(message => { this.courseList = this.courseService.getList(message); this.userName = message });
 	}
 
 	public ngOnDestroy() {
